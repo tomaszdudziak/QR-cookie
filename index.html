@@ -41,24 +41,35 @@
             }
 
             // Add OpenSCAD code epilogue
-            code += "// Render QR code with default settings (module 1x1x1)\r\n";
-            code += "qr_render(qr_data);\r\n";
+
+            code += "// Render QR code stamp with default settings\r\n";
+            code += "qr_stamp_render(qr_data);\r\n";
             code += "\r\n";
             code += "// QR code rendering method\r\n";
-            code += "module qr_render(data, module_size = 1, height = 1) {\r\n";
+            code += "module qr_stamp_render(data, module_size = 1.2, height = 2,border=1, cutterwidth=0.8) {\r\n";
             code += "    maxmod = len(data) - 1;\r\n";
             code += "    union() {\r\n";
             code += "        for(r = [0 : maxmod]) {\r\n";
             code += "            for(c = [0 : maxmod]) {\r\n";
             code += "                if(data[r][c] == 1){\r\n";
-            code += "                    xo = c * module_size;\r\n";
-            code += "                    yo = (maxmod - r) * module_size;\r\n";
+            code += "                    xo = (maxmod - c) * module_size + border;\r\n";
+            code += "                    yo = (maxmod - r) * module_size + border;\r\n";
             code += "                    translate([xo, yo, 0]) cube([module_size, module_size, height]);\r\n";
             code += "                }\r\n";
             code += "            }\r\n";
             code += "        }\r\n";
+            code += "        stampheight=(module_size*maxmod)/2;\r\n";
+            code += "        translate([0, 0, -stampheight]) cube([module_size*(maxmod+1)+2*border, module_size*(maxmod+1)+2*border, stampheight]);\r\n";
+            code += "        difference () {\r\n";
+            code += "            union () {\r\n";
+            code += "                translate([-3*cutterwidth, -3*cutterwidth, -stampheight]) cube([module_size*(maxmod+1)+2*border+6*cutterwidth, module_size*(maxmod+1)+2*border+6*cutterwidth, stampheight]);\r\n";
+            code += "                translate([-5*cutterwidth, -5*cutterwidth, -stampheight]) cube([module_size*(maxmod+1)+2*border+10*cutterwidth, module_size*(maxmod+1)+2*border+10*cutterwidth, height]);\r\n";
+            code += "            }\r\n";
+            code += "            translate([-2*cutterwidth, -2*cutterwidth, -stampheight-2]) cube([module_size*(maxmod+1)+2*border+4*cutterwidth, module_size*(maxmod+1)+2*border+4*cutterwidth, stampheight+4]);\r\n";
+            code += "        }   \r\n";
             code += "    }\r\n";
             code += "}\r\n";
+            
             document.getElementById("code").innerText = code;
 
             // Prevent form submission
